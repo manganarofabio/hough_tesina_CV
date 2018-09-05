@@ -1,30 +1,29 @@
 import cv2
 import numpy as np
 
+def convert_hls(image):
+    return cv2.cvtColor(image, cv2.COLOR_RGB2HLS)
+
+def select_white_yellow(image):
+    converted = convert_hls(image)
+    # white color mask
+    lower = np.uint8([  0, 200,   0])
+    upper = np.uint8([255, 255, 255])
+    white_mask = cv2.inRange(converted, lower, upper)
+    # yellow color mask
+    lower = np.uint8([ 10,   0, 100])
+    upper = np.uint8([ 40, 255, 255])
+    yellow_mask = cv2.inRange(converted, lower, upper)
+    # combine the mask
+    mask = cv2.bitwise_or(white_mask, yellow_mask)
+    return cv2.bitwise_and(image, image, mask = mask)
+
+
 frame = cv2.imread("start.jpg")
 
 
-while(1):
 
 
-    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+masked = select_white_yellow(frame)
 
-    # define range of white color in HSV
-    # change it according to your need !
-    lower_white = np.array([0,0,0], dtype=np.uint8)
-    upper_white = np.array([0,0,255], dtype=np.uint8)
-
-    # Threshold the HSV image to get only white colors
-    mask = cv2.inRange(hsv, lower_white, upper_white)
-    # Bitwise-AND mask and original image
-    res = cv2.bitwise_and(frame,frame, mask= mask)
-
-    cv2.imshow('frame',frame)
-    cv2.imshow('mask',mask)
-    cv2.imshow('res',res)
-
-    k = cv2.waitKey(5) & 0xFF
-    if k == 27:
-        break
-
-cv2.destroyAllWindows()
+cv2.imwrite("hls.png", masked)

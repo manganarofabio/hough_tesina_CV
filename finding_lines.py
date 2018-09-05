@@ -65,6 +65,7 @@ def hough_lines(image):
     #30 20 20
 
     #best 40, 20, 300
+    #fin test 40, 20, 50
     return cv2.HoughLinesP(image, rho=1, theta=np.pi / 90, threshold=40, minLineLength=20, maxLineGap=50)
 
 
@@ -76,7 +77,7 @@ def average_slope_intercept(lines):
 
     for line in lines:
         for x1, y1, x2, y2 in line:
-            if x2 == x1:
+            if x2 == x1 or np.abs(y2 -y1) < 100:
                 continue  # ignore a vertical line
             slope = (y2 - y1) / (x2 - x1)
             intercept = y1 - slope * x1
@@ -132,7 +133,7 @@ def lane_lines(image, lines):
     return left_line, right_line
 
 
-def draw_lane_lines(image, lines, color=[255, 0, 0], thickness=8):
+def draw_lane_lines(image, lines, color=[0, 0, 255], thickness=8):
     # make a separate image to draw lines and combine with the orignal later
     line_image = np.zeros_like(image)
     for line in lines:
@@ -270,6 +271,22 @@ def main():
     # cv2.imwrite('finale.png', img_on)
 
 
+
+    #visualizzazione finale
+
+    img_test = cv2.imread("test.png")
+    img_vis_fin = np.zeros_like(img_test)
+
+    a = 0.5
+    for r in range(h):
+        for c in range(w):
+            if not np.array_equal(img_test[r,c], [0, 0, 0]):
+                img_vis_fin[r, c] = (1 - a) * img_test[r, c] + a * img_fin[r, c]
+            else:
+                img_vis_fin[r, c] = img_fin[r, c]
+
+
+    cv2.imwrite("visualizzazione.png", img_vis_fin)
 
 
 
